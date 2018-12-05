@@ -8,6 +8,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.HashMap;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,10 +48,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private static String answer = "";
 
+    private static RequestQueue requestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        //Creates new requestqueue and starts it
+        requestQueue = Volley.newRequestQueue(this);
+        requestQueue.start();
+
 
         setContentView(R.layout.activity_main);
 
@@ -56,7 +77,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Links variable to object on activity_main by the id
         newQuote = findViewById(R.id.refreshButton);
+
+        //Sets the new quote button to call the callAPI function when clicked
+        newQuote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callAPI();
+            }
+        });
+
     }
 
     /**
@@ -88,4 +119,63 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Calls the RapidAPI MoveQuotes API, resets the quote view, and modifies the answer String
+     */
+    private void callAPI() {
+
+        //Resets the inputField to be blank for the next input;
+        String emptySet = "";
+        inputField.setText(emptySet);
+
+        //JSONArray request to get the object from the API
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET,
+                "https://andruxnet-random-famous-quotes.p.mashape.com/?cat=movies",
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        //Attempts to parse the result, logs a statement on failure
+                        try {
+                            //Retrieves the first Object from the Array response
+                            JSONObject quoteObject = response.getJSONObject(0);
+
+                            //Retrieves the quote from the parse object and sets the quoteView
+                            String toSetQuote = quoteObject.getString("quote");
+                            quoteView.setText(toSetQuote);
+
+                            //Retrieves the answer and sets the static answer string;
+                            String answerResult = quoteObject.getString("author");
+                            answer = answerResult;
+
+                            //Prints answer for testing app
+                            System.out.println(answerResult);
+
+                        } catch (Exception e) {
+                            System.out.println("Response succeeded, failed parsing");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Debug statement prints when there are errors in the response
+                System.out.println("Error");
+                System.out.println(error.toString());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                //Sets the headers required to make the API call to MashAPE
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("X-Mashape-Key", "eCBxXTdlMCmshIFkGfvWrQjJhX3cp11RGmejsnonAlptzRkgEW");
+                params.put("Accept", "application/json");
+                return params;
+            }
+        };
+
+        //Adds the request to the queue
+        requestQueue.add(jsonArrayRequest);
+    }
+
 }
+
