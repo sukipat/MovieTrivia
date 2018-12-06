@@ -40,8 +40,14 @@ public class MainActivity extends AppCompatActivity {
     //Declares new variable of type Button to be reference programmatically
     private Button newQuote;
 
+    //Declares new variable of type TextView to be referenced programmatically
+    private TextView answerView;
+
     //Declares new int to keep track of correct tries
     private static int countCorrect;
+
+    //Declares new int to keep track of number of attempts left
+    private static int attemptCount = 5;
 
     /*Creates string to store the answer in, initializes as blank to prevent NullExceptions in the
     checkAnswers function
@@ -66,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         scoreView = findViewById(R.id.scoreField);
         quoteView = findViewById(R.id.quoteField);
         inputField = findViewById(R.id.guessInput);
+        answerView = findViewById(R.id.answerView);
 
         submitButton = findViewById(R.id.submitButton);
 
@@ -110,10 +117,27 @@ public class MainActivity extends AppCompatActivity {
             countCorrect++;
             String toSet = "Number Correct: " + countCorrect;
             scoreView.setText(toSet);
+
         } else {
             //If incorrect, send the user to the sorry, try again screen
             Intent intent = new Intent(MainActivity.this, wrongAnswer.class);
             startActivity(intent);
+
+            //If this is the last attempt failed, disable the submit button
+            if (attemptCount == 1) {
+                submitButton.setEnabled(false);
+
+                //Sets the attempts left field to show the right answer
+                String revealAnswer = "The correct answer is: " + answer;
+                answerView.setText(revealAnswer);
+            }
+            else {
+                //Decrements the amount of attempts left and resets the countView
+                attemptCount--;
+                String setNumLeft = "You have " + attemptCount + " attempts left";
+                answerView.setText(setNumLeft);
+            }
+
         }
 
     }
@@ -123,6 +147,14 @@ public class MainActivity extends AppCompatActivity {
      * Calls the RapidAPI MoveQuotes API, resets the quote view, and modifies the answer String
      */
     private void callAPI() {
+
+        //Resets attempts left and the attempts field;
+        attemptCount = 5;
+        String setNumLeft = "You have " + attemptCount + " attempts left";
+        answerView.setText(setNumLeft);
+
+        //Makes submit enabled again
+        submitButton.setEnabled(true);
 
         //Resets the inputField to be blank for the next input;
         String emptySet = "";
