@@ -23,8 +23,8 @@
 
     <TextView
         android:id="@+id/quoteField"
-        android:layout_width="297dp"
-        android:layout_height="102dp"
+        android:layout_width="307dp"
+        android:layout_height="166dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="82dp"

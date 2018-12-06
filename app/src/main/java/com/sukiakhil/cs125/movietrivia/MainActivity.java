@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        //Creates new requestqueue and starts it
+        //Creates new request queue and starts it
         requestQueue = Volley.newRequestQueue(this);
         requestQueue.start();
 
